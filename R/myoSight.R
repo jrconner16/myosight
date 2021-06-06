@@ -176,8 +176,8 @@ p_violin
 ######Histrogram (binning)
 
 p<- ggplot(df2, aes(x=MinFeret))+
-  geom_histogram(aes(color=Genotype),fill="white", stat="identidy",
-                 position= "dodge", bins=10, alpha=0.5)+
+  geom_histogram(aes(color=Genotype),fill="white",
+                 position= "identity", bins=10, alpha=0.5)+
   xlab("xlab")+
   ylab("ylab")+
   ggtitle(" title")
@@ -193,7 +193,19 @@ p<- ggplot(df2, aes(x=CentralNuclei))+
 
 p
 
+his3<- ggplot(df_1and4, aes(x=MinFeret))+
+  geom_histogram(aes(color=Genotype),
+                 position= "identity", bins=30, alpha=0.8)+
+  theme(legend.position = c(.4,.8))+
+  #xlab("xlab")+
+  #ylab("ylab")+
+  ggtitle(" Distribution of Minimum Ferret Diameter")+
+  facet_grid(. ~ Age )
+  
+ 
 
+
+his3
 #######plot grouped 1 month mouse mdx vs mdxjag Min Feret ##########
 p<-ggplot(data=group25_mdx_mdxjag, aes(x= rownames(group25_mdx_mdxjag), y=MinFeret_mean, fill= rownames(group25_mdx_mdxjag))) +#####fill adds colors and legend
   geom_bar(stat="identity")+
