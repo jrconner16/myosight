@@ -100,6 +100,11 @@ df$genotype <- factor(df$genotype)
 
 View(df)
 
+
+########################percent binning instead of total binning)
+
+View(df)
+
 ##############################GRAPHING##################
 ##########GRAPHING#############GRAPHING#############
 ##########GRAPHING#############GRAPHING############
@@ -131,6 +136,29 @@ his_minFeret<- ggplot(df, aes(x=MinFeret))+
   scale_fill_manual(values=c("red", "blue"))
 
 his_minFeret
+
+
+########333########3###################
+##########################################3
+#####histogram minFeret normalized to count total 
+df_nucleiZero_groupBy_genotype_age<- group_by(df, genotype, age) %>% 
+  mutate(n=n())
+View(df_nucleiZero_groupBy_genotype_age)
+
+minFeret_pannel_norm<-
+  ggplot(df_nucleiZero_groupBy_genotype_age,aes(x=MinFeret,fill=genotype))+
+  geom_histogram(aes(y=0.5*..density..*10),
+                 alpha=0.3,position='identity', bins=20)+
+  facet_grid(~factor(age, levels= c("1month", "4month", "1yr")))+ 
+  scale_fill_manual(values=c("red", "blue"))+
+  ylab("percent")+
+  theme(legend.position = c(.9,.85))+
+  ggtitle("Distribution of minimum feret diameter")
+
+
+minFeret_pannel_norm
+#####################################
+#####################################
 ################################################################################
 #################### COMBINED the two into super pannel#########################
 ################################################################################
@@ -146,10 +174,10 @@ grid.arrange(pannel_minFeret, his_minFeret, nrow=2 )
 pannel_CentralNuclei <- ggboxplot(df, x="genotype", y="CentralNuclei",
                                   color = "genotype", palette = "jco", add="jitter" )+
   facet_grid(~factor(age, levels= c("1month", "4month", "1yr")))+
-  ylim(0,5)+
+  ylim(0,4.5)+
   stat_compare_means(method="t.test",
                      label.x= 1.6,
-                     label.y= 5) +
+                     label.y= 4.5) +
   ggtitle("Central Nuclei (all fibers)")+
   xlab("")+
   scale_color_manual(values= c("red","blue"))
@@ -168,7 +196,7 @@ round_df <- function(df, digits) {
 percentage<-
   df%>%
   group_by(genotype, age) %>%
-  mutate(nn = sum(CentralNuclei != 0), n=n(), `percent`= nn/n) %>%
+  mutate(nn = sum(CentralNuclei != 0), n=n(), `percent`= nn/n) %>% 
   select(genotype, age,`percent`) %>% distinct()
 percentage<- round_df(percentage, 2)
 #########
@@ -192,6 +220,8 @@ percent_p
 df_nucleiZero<- filter(df, df$TotalMyonuclei!=0)
 View(df_nucleiZero)
 
+
+
 #########################################################################################
 #same as above but the filtered versions
 #########################################################################################
@@ -212,6 +242,19 @@ pannel_CentralNuclei_filtered <- ggboxplot(df_nucleiZero, x="genotype", y="Centr
   xlab("")+
   scale_color_manual(values= c("red","blue"))
 pannel_CentralNuclei_filtered
+
+
+pannel_periNuclei_filtered <- ggboxplot(df_nucleiZero, x="genotype", y="",
+                                           color = "genotype", palette = "jco", add="jitter" )+
+  facet_grid(~factor(age, levels= c("1month", "4month", "1yr")))+
+  ylim(0,5)+
+  stat_compare_means(method="t.test",
+                     label.x= 1.6,
+                     label.y= 5) +
+  ggtitle("Central Nuclei (when a nucleus is detected by Myosight)")+
+  xlab("")+
+  scale_color_manual(values= c("red","blue"))
+pannel_periNuclei_filtered
 
 
 ###############percent with filtered data########################
@@ -247,7 +290,7 @@ percent_p_filtered
 grid.arrange(pannel_minFeret, his_minFeret, pannel_CentralNuclei_filtered, percent_p_filtered)
 
 
-
+grid.arrange(pannel_minFeret, minFeret_pannel_norm, pannel_CentralNuclei_filtered, percent_p_filter)
 
 
 grid.arrange(pannel_CentralNuclei, pannel_CentralNuclei_filtered, percent_p, percent_p_filter, nrow=2)

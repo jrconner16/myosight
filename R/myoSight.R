@@ -8,6 +8,8 @@ library(ggplot2)
 library(rstatix)
 library(ggpubr)
 library(stringr)
+library(gtable)
+library(gridExtra)
 
 setwd("~/projects/myosight/1month/1month/x25/")
 
@@ -31,8 +33,20 @@ list_of_files <- list.files(path = ".", recursive = TRUE,
 
 df_4month <- vroom(list_of_files, id = "x25")
 
+setwd("~/projects/myosight/1yr Pax7 Laminin/10x/") 
+#######lists all text files recursively from current working directory#######
+list_of_files <- list.files(path = ".", recursive = TRUE,
+                            pattern = "\\.txt$", 
+                            full.names = FALSE) 
 
-View(df_4month)
+
+df_1year <- vroom(list_of_files, id = "10x")
+
+names(df_1month)
+
+
+
+View(df_1year)
 ########PUT ALL DATA INTO 1 PLOT and tidy it###########
 df_1and4<- rbind(df_1month, df_4month) 
 View(df_1and4)
@@ -60,8 +74,13 @@ pannel + facet_grid(. ~ Age )+
   xlab("")
 
 
+
+
 names(df_1and4)[names(df_1and4) == 'Central Nuclei'] <- 'CentralNuclei' 
 names(df_1and4)
+
+View(df_1and4
+     )
 
 pannel2 <- ggboxplot(df_1and4, aes(x=Genotype, y=CentralNuclei, group= Genotype)) + 
   geom_boxplot(aes(fill=Genotype))
@@ -71,20 +90,22 @@ pannel2 + facet_grid(. ~ Age )+
                      label.x= 1.6,
                      label.y= 10) +
   ggtitle("Central Nuclei")+
-  xlab("")
+  xlab("")+
+  scale_fill_manual(values= c("red","blue"))
 
 #############scatter version######
 pannel3 <- ggboxplot(df_1and4, x = "Genotype", y = "MinFeret",
-                               color = "Genotype", palette = "jco", add= "jitter", )
+                               color = "Genotype", palette = c("red", "blue"), add= "jitter", )
             
-pannel3 + facet_grid(. ~ Age )+ 
+pannel3<-pannel3 + facet_grid(. ~ Age )+ 
   stat_compare_means(method="t.test") +
   ggtitle("Minimum Ferret Diamter")+
   xlab("")+
   ylab("microns")
+pannel3
 
 
-
+grid.arrange(pbox_central, percent_p,nrow = 2)
 
 ############renames data to remove mouse number and image number to reduce to genotype value######
 
@@ -141,7 +162,7 @@ pbox_feret
 
 
 
-pbox_centralNucl<- ggboxplot (df2, x = "Genotype", y = "CentralNuclei",
+pbox_centralNucl<- ggboxplot (df_1and4, x = "Genotype", y = "CentralNuclei",
                        color = "Genotype", palette = "jco", add="jitter" 
 )
 
@@ -149,7 +170,9 @@ pbox_centralNucl<- ggboxplot (df2, x = "Genotype", y = "CentralNuclei",
 pbox_centralNucl<- pbox_centralNucl+ stat_compare_means() +
   ylab("Central Nuclei")+ 
   xlab(" ")+
-  ggtitle("Central Nuclei 1 Months")
+  ggtitle("Central Nuclei ")+
+  facet_grid(. ~ Age )+
+  scale_color_manual(values=c("red", "blue"))
   
 
 
@@ -195,17 +218,34 @@ p
 
 his3<- ggplot(df_1and4, aes(x=MinFeret))+
   geom_histogram(aes(color=Genotype),
-                 position= "identity", bins=30, alpha=0.8)+
+                 position= "identity", bins=30, alpha=0.3)+
   theme(legend.position = c(.4,.8))+
   #xlab("xlab")+
   #ylab("ylab")+
   ggtitle(" Distribution of Minimum Ferret Diameter")+
-  facet_grid(. ~ Age )
+  facet_grid(. ~ Age )+
+  scale_color_manual(values=c("red", "blue"))+
+  scale_fill_manual(values=c("red", "blue"))
   
  
 
 
 his3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #######plot grouped 1 month mouse mdx vs mdxjag Min Feret ##########
 p<-ggplot(data=group25_mdx_mdxjag, aes(x= rownames(group25_mdx_mdxjag), y=MinFeret_mean, fill= rownames(group25_mdx_mdxjag))) +#####fill adds colors and legend
   geom_bar(stat="identity")+
@@ -228,9 +268,6 @@ p1<-ggplot(data=group25_mdx_mdxjag, aes(x= rownames(group25_mdx_mdxjag), y=`Cent
 p1 <- p1 + guides(fill=guide_legend("genotype")) 
   p1<- p1 + scale_fill_manual(breaks= c("mdx", "mdxJAG"), values=c("red", "blue") )
 p1
-
-
-
 
 
 #####subset by file name value contains MDX"""""" for bar plot data
