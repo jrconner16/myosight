@@ -143,3 +143,52 @@ grid.arrange(pannel_minFeret, his_minFeret, nrow=2 )
 
 
 
+
+
+
+
+
+
+
+
+
+round_df <- function(df, digits) {
+  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+  
+  df[,nums] <- round(df[,nums], digits = digits)
+  
+  (df)
+}
+
+
+percentage<-
+  df_nucleiZero %>%
+  group_by(genotype, age) %>%
+  mutate(nn = sum(CentralNuclei != 0), n=n(), `percent`= nn/n) %>% 
+  select(genotype, age,`percent`) %>% distinct()
+
+percentage<- round_df(percentage, 2)
+
+#########
+View(percentage)
+
+percentage<- as.data.frame(percentage)
+class(percentage)
+
+View(percentage)
+
+
+percent_p_filter<- ggplot(percentage, aes(x=genotype, y=`percent`, fill=genotype)) + 
+  geom_bar(stat = "identity") + 
+  facet_grid(~factor(age, levels= c("1month", "4month", "1yr")))+ 
+  xlab(" ")+ 
+  ggtitle(" % of Fibers containing central nuclei (when a nucleus is detected by Myosight)")+
+  theme(legend.position = "none")+
+  scale_fill_manual(values= c("red", "blue"))+
+  geom_text(aes(label=percent), size=6, vjust=0)
+
+percent_p_filter<- ggpar(percent_p, ylim= c(0,1))
+percent_p_filter
+
+grid.arrange(percent_p_filter)
+
