@@ -35,7 +35,6 @@ df_red<- df %>%
 df<- rbind(df_black, df_red)
 
 df$id <- cumsum(!duplicated(df[1])) ######creates ID column based on unique file names
-View(df)
 ###############################################################
 ##########################PLOT#################################
 ###############################################################
@@ -56,20 +55,20 @@ minFeret_theme<- function(){
 
     
 
-p_minFer_byLabel<-ggplot(df_stat, aes(x=df_stat$Color, y=df_stat$MinFeret, fill=Label)) +
-          geom_boxplot()+
-          labs(title= "minimum Feret diameter", x="genotypes", y='minFere(uM')+
-          scale_fill_discrete(name = "Fiber Type")
-p_minFer_byLabel
+      p_minFer_byLabel<-ggplot(df_stat, aes(x=df_stat$Color, y=df_stat$MinFeret, fill=Label)) +
+        geom_boxplot()+
+        labs(title= "minimum Feret diameter by fiber type", x="genotypes", y='minFere(uM')+
+        scale_fill_discrete(name = "Fiber Type")
+      
+      
+      
+      p_minFer_byColor<-ggplot(df_stat, aes(x=df_stat$Color, y=df_stat$MinFeret, fill=Color)) +
+        scale_fill_manual(values= c("grey", "red"))+
+        labs(title= "minimum Feret diameter", x="genotypes", y='minFere(uM')+
+        geom_boxplot()+
+        
+        minFeret_theme()
 
-
-p_minFer_byColor<-ggplot(df_stat, aes(x=df_stat$Color, y=df_stat$MinFeret, fill=Color)) +
-  scale_fill_manual(values= c("grey", "red"))+
-  labs(title= "minimum Feret diameter", x="genotypes", y='minFere(uM')+
-  geom_boxplot()+
- 
-  minFeret_theme()
-p_minFer_byColor
 
 grid.arrange(p_minFer_byColor, p_minFer_byLabel)
 
